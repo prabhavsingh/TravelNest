@@ -37,8 +37,13 @@ const createSendToken = (user, statusCode, req, res) => {
   });
 };
 
-exports.signup = catchAsync(async (req, res, next) => {
-  // const newUser = await User.create(req.body);
+export const signup = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return next(new AppError('User with that email already exists', 400));
+  }
+
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -50,7 +55,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, req, res);
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+export const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   //1. check if email and password exist
@@ -68,7 +73,7 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, req, res);
 });
 
-exports.logout = (req, res) => {
+export const logout = (req, res) => {
   res.cookie('jwt', 'loogedOut', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
@@ -78,7 +83,7 @@ exports.logout = (req, res) => {
   });
 };
 
-exports.protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
   //1. getting token and check if its there
   let token;
   if (
@@ -122,7 +127,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 
 // Only for rendered pages, no error
-exports.isLoggedIn = async (req, res, next) => {
+export const isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
     try {
       // 1. verify token
@@ -151,7 +156,7 @@ exports.isLoggedIn = async (req, res, next) => {
   next();
 };
 
-exports.restrictTo = (...roles) => {
+export const restrictTo = (...roles) => {
   return (req, res, next) => {
     //roles ['admin']
     if (!roles.includes(req.user.role)) {
@@ -163,7 +168,7 @@ exports.restrictTo = (...roles) => {
   };
 };
 
-exports.forgotPassword = catchAsync(async (req, res, next) => {
+export const forgotPassword = catchAsync(async (req, res, next) => {
   //1. get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
@@ -199,7 +204,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = catchAsync(async (req, res, next) => {
+export const resetPassword = catchAsync(async (req, res, next) => {
   //1.get user based on the token
   const hashedToken = crypto
     .createHash('sha256')
@@ -226,7 +231,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, req, res);
 });
 
-exports.updatepassword = catchAsync(async (req, res, next) => {
+export const updatepassword = catchAsync(async (req, res, next) => {
   //1. get user from collection
   const user = await User.findById(req.user.id).select('+password');
 

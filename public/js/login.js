@@ -56,7 +56,7 @@ export const signup = async (name, email, password, passwordConfirm) => {
     });
 
     if (res.data.status === 'success') {
-      showAlert('success', 'Signed Up Successfully');
+      showAlert('success', 'Account Created Successfully');
       window.setTimeout(() => {
         location.assign('/');
       }, 500);
@@ -97,12 +97,9 @@ export const resetPassword = async (password, passwordConfirm, resetToken) => {
     });
 
     if (res.data.status === 'success') {
-      showAlert(
-        'success',
-        'Password Reset Successfully! Please login with new Password',
-      );
+      showAlert('success', 'Password Reset Successfully!');
       window.setTimeout(() => {
-        location.assign('/login');
+        location.assign('/');
       }, 500);
     }
   } catch (error) {

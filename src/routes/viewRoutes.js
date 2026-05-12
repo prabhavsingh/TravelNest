@@ -28,4 +28,4 @@ router.post(
   viewsController.updateUserData,
 );
 
-module.exports = router;
+export default router;

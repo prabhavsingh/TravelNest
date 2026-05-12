@@ -1,23 +1,25 @@
-const path = require('path');
-const express = require('express');
-const morgon = require('morgan');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
-const hpp = require('hpp');
-const cookieParser = require('cookie-parser');
-const compression = require('compression');
-const cors = require('cors');
+import type { NextFunction, Request, Response } from 'express';
 
-const tourRouter = require('./routes/tourRoutes');
-const userRouter = require('./routes/userRoutes');
-const reviewRouter = require('./routes/reviewRoutes');
-const viewRouter = require('./routes/viewRoutes');
-const bookingController = require('./controllers/bookingController');
-const bookingRouter = require('./routes/bookingRoutes');
-const AppError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController');
+import path from 'path';
+import express from 'express';
+import morgon from 'morgan';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import cors from 'cors';
+
+import tourRouter from './routes/tourRoutes.js';
+import userRouter from './routes/userRoutes.js';
+import reviewRouter from './routes/reviewRoutes.js';
+import viewRouter from './routes/viewRoutes.js';
+import { webhookCheckout } from './controllers/bookingController.js';
+import bookingRouter from './routes/bookingRoutes.js';
+import globalErrorHandler from './controllers/errorController.js';
+import AppError from './utils/appError.js';
 
 const app = express();
 
@@ -71,7 +73,7 @@ app.use('/api', limiter);
 app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
-  bookingController.webhookCheckout,
+  webhookCheckout,
 );
 
 //adds body data on req - data from the body is added to req object
@@ -118,12 +120,12 @@ app.use((req, res, next) => {
 // 3. ROUTES
 
 app.use('/', viewRouter);
-app.use('/api/v1/tours', tourRouter);
+// app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/reviews', reviewRouter);
-app.use('/api/v1/bookings', bookingRouter);
+// app.use('/api/v1/reviews', reviewRouter);
+// app.use('/api/v1/bookings', bookingRouter);
 
-app.all('*', (req, res, next) => {
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
   // res.status(404).json({
   //   status: 'fail',
   //   message: `can't find ${req.originalUrl} on this server`,
@@ -138,4 +140,4 @@ app.all('*', (req, res, next) => {
 
 app.use(globalErrorHandler);
 
-module.exports = app;
+export default app;

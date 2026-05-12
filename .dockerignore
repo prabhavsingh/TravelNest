@@ -1,0 +1,8 @@
+node_modules
+Dockerfile
+.parcel-cache
+public/dist
+.git
+dev-data
+config.env
+docker-compose.yml
