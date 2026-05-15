@@ -18,8 +18,68 @@ const bookingController = require('./controllers/bookingController');
 const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const promClient = require('prom-client');
+const responseTime = require('response-time');
+const { transports, createLogger, format } = require('winston');
+const LokiTransport = require('winston-loki');
 
+const options = {
+  level: 'info',
+  format: format.json(),
+  transports: [
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple()),
+    }),
+    new LokiTransport({
+      host: 'http://127.0.0.1:3100',
+    }),
+  ],
+};
+const logger = createLogger(options);
 const app = express();
+
+const register = new promClient.Registry();
+promClient.collectDefaultMetrics({ register });
+
+const reqResTime = new promClient.Histogram({
+  name: 'http_express_req_res_time',
+  help: 'THis tells how much time is taken by req and res',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [1, 5, 10, 50, 100, 200, 500, 800, 1000, 2000, 5000],
+});
+
+const httpRequestsCounter = new promClient.Counter({
+  name: 'http_total_request_counter',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status'],
+});
+
+register.registerMetric(reqResTime);
+register.registerMetric(httpRequestsCounter);
+
+app.use(
+  responseTime((req, res, time) => {
+    reqResTime
+      .labels({
+        method: req.method,
+        route: req.url,
+        status_code: req.statusCode,
+      })
+      .observe(time);
+  }),
+);
+
+app.use((req, res, next) => {
+  res.on('finish', () => {
+    httpRequestsCounter.inc({
+      method: req.method,
+      route: req.path,
+      status: res.statusCode,
+    });
+  });
+
+  next();
+});
 
 app.enable('trust proxy');
 
@@ -122,6 +182,12 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
+
+//metrics endpoint for prometheus
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 app.all('*', (req, res, next) => {
   // res.status(404).json({
