@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { invalidateCollectionCache } = require('../utils/cache');
 
 const bookingSchema = new mongoose.Schema({
   tour: {
@@ -31,6 +32,10 @@ bookingSchema.pre(/^find/, function (next) {
     select: 'name',
   });
   next();
+});
+
+bookingSchema.post('save', async function () {
+  await invalidateCollectionCache('Booking');
 });
 
 const Booking = mongoose.model('Booking', bookingSchema);

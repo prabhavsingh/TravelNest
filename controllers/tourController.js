@@ -5,6 +5,7 @@ const Tour = require('../model/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
+const redis = require('../config/redis.config');
 
 const multerStroage = multer.memoryStorage();
 
@@ -73,6 +74,14 @@ exports.updateTour = factory.UpdateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
+  const cacheKey = `Tour:tour-stats`;
+  const cacheValue = await redis.get(cacheKey);
+  if (cacheValue) {
+    return res.status(200).json({
+      status: 'success',
+      data: JSON.parse(cacheValue),
+    });
+  }
   const stats = await Tour.aggregate([
     {
       $match: { ratingsAverage: { $gte: 4.5 } },
@@ -95,6 +104,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
     //   $match: { _id: { $ne: 'EASY' } },
     // },
   ]);
+  await redis.setex(cacheKey, 300, JSON.stringify(stats));
   res.status(200).json({
     status: 'success',
     data: stats,
@@ -103,6 +113,15 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
 
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
   const year = req.params.year * 1;
+  const cacheKey = `Tour:monthly-plan-${year}`;
+
+  const cacheValue = await redis.get(cacheKey);
+  if (cacheValue) {
+    return res.status(200).json({
+      status: 'success',
+      data: JSON.parse(cacheValue),
+    });
+  }
 
   const plan = await Tour.aggregate([
     {
@@ -138,6 +157,7 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
       $limit: 12,
     },
   ]);
+  await redis.setex(cacheKey, 300, JSON.stringify(plan));
 
   res.status(200).json({
     status: 'success',
