@@ -5,7 +5,7 @@ const Tour = require('../model/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
-const redis = require('../config/redis.config');
+const { redis } = require('../config/redis.config');
 
 const multerStroage = multer.memoryStorage();
 

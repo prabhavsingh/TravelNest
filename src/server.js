@@ -12,20 +12,23 @@ process.on('uncaughtException', (err) => {
 dotenv.config({ path: './config.env' });
 
 const app = require('./app');
+const connectToDB = require('./config/db.config');
+const logger = require('./utils/logger');
+const { connectRedis } = require('./config/redis.config');
 
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD,
-);
+const startServer = async function () {
+  await connectToDB();
+  await connectRedis();
+  const port = process.env.PORT || 3000;
 
-mongoose.connect(DB).then(() => {
-  // console.log(con.connection);
-  console.log('DB connection successful!');
-});
+  const server = app.listen(port, () => {
+    console.log(`App running on port ${port}...`);
+  });
+};
 
-const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
-  console.log(`App running on port ${port}...`);
+startServer().catch((err) => {
+  logger.error('Error while starting the server', err);
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {

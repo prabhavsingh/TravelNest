@@ -1,4 +1,4 @@
-const redis = require('../config/redis.config');
+const { redis } = require('../config/redis.config');
 
 exports.invalidateCollectionCache = async (modelName) => {
   let cursor = '0';
