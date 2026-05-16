@@ -23,15 +23,14 @@ const corsConfig = require('./config/cors.config');
 const app = express();
 
 // app.enable('trust proxy');
-
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
 
 // 1. MIDDLEWARES
 //implement cors
 app.use(cors(corsConfig));
 //serving static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 //Set security HTTP headers
 app.use(

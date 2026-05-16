@@ -1,7 +1,7 @@
 /*eslint-disable*/
 
-import 'core-js/stable';
-import 'regenerator-runtime';
+// import 'core-js/stable';
+// import 'regenerator-runtime';
 
 import { forgotPassword, login, logout, resetPassword, signup } from './login';
 import { updateSettings } from './updateSettings';
@@ -44,9 +44,8 @@ if (forgotPasswordForm)
       let time = 60;
       const countdown = setInterval(() => {
         time--;
-        document.querySelector(
-          '.btn--reset',
-        ).textContent = `Try Again in ${time} sec`;
+        document.querySelector('.btn--reset').textContent =
+          `Try Again in ${time} sec`;
         if (time === 0) {
           clearInterval(countdown);
           resetBtn.disabled = false;

@@ -2,13 +2,12 @@
   "name": "travelnest",
   "version": "1.0.0",
   "description": "Learning node, express and mongoDB",
-  "main": "server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "start:prod": "SET NODE_ENV=production & nodemon server.js ",
-    "watch": "parcel watch ./public/js/index.js --out-dir ./public/dist --out-file bundle.js --no-source-maps",
-    "build": "parcel build ./public/js/index.js --out-dir ./public/dist --out-file bundle.js --no-source-maps"
+    "watch": "parcel watch ./public/js/index.js --dist-dir ./public/dist --no-source-maps",
+    "build": "parcel build ./public/js/index.js --dist-dir ./public/dist --no-source-maps"
   },
   "repository": {
     "type": "git",
@@ -48,7 +47,8 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "parcel": "^2.16.4"
   },
   "engines": {
     "node": ">=18.0.0"
