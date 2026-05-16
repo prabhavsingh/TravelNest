@@ -18,18 +18,18 @@ const bookingController = require('./controllers/bookingController');
 const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+const corsConfig = require('./config/cors.config');
 
 const app = express();
 
-app.enable('trust proxy');
+// app.enable('trust proxy');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // 1. MIDDLEWARES
 //implement cors
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsConfig));
 //serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 

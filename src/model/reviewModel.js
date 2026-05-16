@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Tour = require('./tourModel');
+const { invalidateCollectionCache } = require('../utils/cache');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -78,6 +79,18 @@ reviewSchema.post('save', function () {
 
 reviewSchema.post(/^findOneAnd/, function (doc) {
   doc.constructor.calcAverageRatings(doc.tour);
+});
+
+reviewSchema.post('save', async function () {
+  await invalidateCollectionCache('Review');
+  await invalidateCollectionCache('Tour');
+});
+
+reviewSchema.post(/^findOneAnd/, async function (doc) {
+  if (doc) {
+    await invalidateCollectionCache('Review');
+    await invalidateCollectionCache('Tour');
+  }
 });
 
 const Review = mongoose.model('Review', reviewSchema);
