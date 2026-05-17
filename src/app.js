@@ -19,10 +19,14 @@ const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const corsConfig = require('./config/cors.config');
+const logger = require('./utils/logger');
 
 const app = express();
 
-// app.enable('trust proxy');
+if (process.env.NODE_ENV.trim() === 'production') {
+  app.enable('trust proxy');
+}
+
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '../views'));
 
@@ -54,7 +58,6 @@ app.use(
   }),
 );
 
-console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV.trim() === 'development') {
   app.use(morgon('dev'));
 }

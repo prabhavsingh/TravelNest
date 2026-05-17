@@ -7,7 +7,7 @@ const logger = winston.createLogger({
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize(),
     winston.format.printf(({ timestamp, level, message, stack, service }) => {
-      const mainMessage = `[${timestamp}] [${service}] ${level}: ${message}`;
+      const mainMessage = `[${timestamp}] [${service}] [${process.env.NODE_ENV}] ${level}: ${message}`;
       // If there's an error stack trace, print it on a new line below
       return stack ? `${mainMessage}\n💥 STACK TRACE:\n${stack}` : mainMessage;
     }),
