@@ -5,6 +5,7 @@ const User = require('../model/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const Email = require('../utils/email');
+const { addEmailToQueue } = require('../utils/emailQueue');
 
 const signToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -46,7 +47,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
   const url = `${req.protocol}://${req.get('host')}/me`;
-  await new Email(newUser, url).sendWelcome();
+  // add email job to queue
+  await addEmailToQueue(newUser, url);
   createSendToken(newUser, 201, req, res);
 });
 
