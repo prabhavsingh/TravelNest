@@ -19,11 +19,11 @@ const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const corsConfig = require('./config/cors.config');
-const logger = require('./utils/logger');
+require('./utils/workers');
 
 const app = express();
 
-if (process.env.NODE_ENV.trim() === 'production') {
+if (process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'production') {
   app.enable('trust proxy');
 }
 
@@ -66,6 +66,7 @@ if (process.env.NODE_ENV.trim() === 'development') {
 const limiter = rateLimit({
   max: 100,
   windowMS: 60 * 60 * 1000,
+  validate: { trustProxy: false },
   message: 'Too many request from this IP, please try again in hour!',
 });
 app.use('/api', limiter);
@@ -118,6 +119,13 @@ app.use((req, res, next) => {
 // app.delete("/api/v1/tours/:id", deleteTour);
 
 // 3. ROUTES
+
+app.use('/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome! App is working.',
+  });
+});
 
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);

@@ -1,7 +1,4 @@
 const { Worker } = require('bullmq');
-const dotenv = require('dotenv');
-const path = require('path');
-dotenv.config({ path: path.resolve(__dirname, '../../config.env') });
 const { redisConnection } = require('../config/redis.config');
 const Email = require('./email');
 const logger = require('./logger');

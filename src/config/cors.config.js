@@ -9,7 +9,7 @@ const corsConfig = {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('not allowed by cors'));
+      callback(new Error(`not allowed by cors ${origin}`));
     }
   },
   method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
