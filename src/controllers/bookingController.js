@@ -1,4 +1,5 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const config = require('../config/config');
+const stripe = require('stripe')(config.stripe.stripePrivateKey);
 const Tour = require('../model/tourModel');
 const Booking = require('../model/bookingModel');
 const catchAsync = require('../utils/catchAsync');
@@ -69,7 +70,7 @@ export const webhookCheckout = async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
-      process.env.STRIPE_WEBHOOK,
+      config.stripe.webhookSecret,
     );
   } catch (error) {
     return res

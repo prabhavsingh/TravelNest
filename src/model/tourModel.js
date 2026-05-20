@@ -184,5 +184,13 @@ tourSchema.virtual('reviews', {
   localField: '_id',
 });
 
+tourSchema.post('save', async function () {
+  await invalidateCollectionCache('Tour');
+});
+
+tourSchema.post(/^findOneAnd/, async function (doc) {
+  if (doc) await invalidateCollectionCache('Tour');
+});
+
 const Tour = mongoose.model('Tour', tourSchema);
 module.exports = Tour;

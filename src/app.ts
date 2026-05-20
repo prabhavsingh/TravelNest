@@ -1,64 +1,45 @@
-import type { NextFunction, Request, Response } from 'express';
+const path = require('path');
+const express = require('express');
+const morgon = require('morgan');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const cors = require('cors');
 
-import path from 'path';
-import express from 'express';
-import morgon from 'morgan';
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
-import hpp from 'hpp';
-import cookieParser from 'cookie-parser';
-import compression from 'compression';
-import cors from 'cors';
-
-import tourRouter from './routes/tourRoutes.js';
-import userRouter from './routes/userRoutes.js';
-import reviewRouter from './routes/reviewRoutes.js';
-import viewRouter from './routes/viewRoutes.js';
-import { webhookCheckout } from './controllers/bookingController.js';
-import bookingRouter from './routes/bookingRoutes.js';
-import globalErrorHandler from './controllers/errorController.js';
-import AppError from './utils/appError.js';
+const config = require('./config/config');
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
+const bookingController = require('./controllers/bookingController');
+const bookingRouter = require('./routes/bookingRoutes');
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+const corsConfig = require('./config/cors.config');
+const helmetConfig = require('./config/security.config');
+const { initMetric, register } = require('./utils/metrics');
+require('./utils/workers/workers');
 
 const app = express();
 
 app.enable('trust proxy');
-
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, '../views'));
+
+initMetric(app);
 
 // 1. MIDDLEWARES
 //implement cors
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsConfig));
 //serving static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 //Set security HTTP headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          'https://js.stripe.com',
-          'https://cdn.maptiler.com',
-        ],
-        frameSrc: ["'self'", 'https://js.stripe.com'], // Allow Stripe Checkout
-        workerSrc: ["'self'", 'blob:'],
-        connectSrc: [
-          "'self'",
-          'https://api.maptiler.com', //  Allow MapTiler API requests
-        ],
-      },
-    },
-  }),
-);
-
-console.log(process.env.NODE_ENV);
-if (process.env.NODE_ENV.trim() === 'development') {
+app.use(helmetConfig);
+if (config.node_env.trim() === 'development') {
   app.use(morgon('dev'));
 }
 
@@ -66,6 +47,7 @@ if (process.env.NODE_ENV.trim() === 'development') {
 const limiter = rateLimit({
   max: 100,
   windowMS: 60 * 60 * 1000,
+  validate: { trustProxy: false },
   message: 'Too many request from this IP, please try again in hour!',
 });
 app.use('/api', limiter);
@@ -119,11 +101,24 @@ app.use((req, res, next) => {
 
 // 3. ROUTES
 
+app.use('/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'Welcome! App is working.',
+  });
+});
+
 app.use('/', viewRouter);
 // app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 // app.use('/api/v1/reviews', reviewRouter);
 // app.use('/api/v1/bookings', bookingRouter);
+
+//metrics endpoint for prometheus
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 app.all('*', (req: Request, res: Response, next: NextFunction) => {
   // res.status(404).json({

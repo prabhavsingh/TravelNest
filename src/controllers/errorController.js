@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import AppError from '../utils/appError.js';
+=======
+const config = require('../config/config');
+const AppError = require('../utils/appError');
+>>>>>>> development
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
@@ -94,9 +99,9 @@ export default (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  if (process.env.NODE_ENV.trim() === 'development') {
+  if (config.node_env.trim() === 'development') {
     sendErrorDev(err, req, res);
-  } else if (process.env.NODE_ENV.trim() === 'production') {
+  } else if (config.node_env.trim() === 'production') {
     let error = { ...err };
     error.message = err.message;
     if (err.name === 'CastError') error = handleCastErrorDB(err);

@@ -4,17 +4,19 @@ import { config } from 'dotenv';
 setServers(['1.1.1.1', '8.8.8.8']);
 config({ path: './config.env' });
 
-import app from './app.js';
-import { disconnectFromDB, connectToMongoDB } from './config/dbConfig.js';
-import { createServer, Server } from 'http';
-
-let server: Server;
-
 process.on('uncaughtException', (err) => {
   console.log('UNHANDLED EXCEPTION! 💥 Shutting down...');
   console.log(err.name, err.message);
   process.exit(1);
 });
+
+let server: Server;
+
+import app from './app.js';
+import { disconnectFromDB, connectToMongoDB } from './config/dbConfig.js';
+import { createServer, Server } from 'http';
+import { connectRedis } from './config/redis.config.js';
+import connectToDB from './config/db.config.js';
 
 const shutdown = (signal: string) => {
   console.log(`Received ${signal}. Starting graceful shutdown...`);
@@ -48,8 +50,9 @@ const shutdown = (signal: string) => {
 };
 
 async function startServer() {
-  await connectToMongoDB();
-  const port = process.env.PORT || 3000;
+  await connectToDB();
+  await connectRedis();
+  const port = config.port || 8000;
 
   server = createServer(app);
   server.listen(port, () => {
