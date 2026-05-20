@@ -7,6 +7,7 @@ import { forgotPassword, login, logout, resetPassword, signup } from './login';
 import { updateSettings } from './updateSettings';
 import { bookTour } from './stripe.js';
 import { displayMap } from './map.js';
+import { showAlert } from './alerts';
 
 const mapTiler = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
@@ -17,6 +18,8 @@ const bookBtn = document.getElementById('book-tour');
 const signupForm = document.querySelector('.form--signup');
 const forgotPasswordForm = document.querySelector('.form--forgot--password');
 const resetPasswordForm = document.querySelector('.form--reset--password');
+const photoInput = document.getElementById('photo');
+const userPhotoImg = document.querySelector('.form__user-photo');
 
 if (mapTiler) {
   const locations = JSON.parse(mapTiler.dataset.locations);
@@ -85,14 +88,27 @@ if (signupForm)
     signup(name, email, password, passwordConfirm);
   });
 
+if (photoInput)
+  photoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const localPreviewUrl = URL.createObjectURL(file);
+      userPhotoImg.src = localPreviewUrl;
+    }
+  });
+
 if (userDataForm)
   userDataForm.addEventListener('submit', (e) => {
     e.preventDefault();
+
     const form = new FormData();
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
-    form.append('photo', document.getElementById('photo').files[0]);
-    // console.log('form', [...form]);
+    const photoFile = document.getElementById('photo').files[0];
+    if (photoFile) {
+      showAlert('success', 'Processing your photo...');
+      form.append('photo', photoFile);
+    } // console.log('form', [...form]);
     updateSettings(form, 'data');
   });
 

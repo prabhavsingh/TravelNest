@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
+const config = require('./config');
 
-if (!process.env.DATABASE || !process.env.DATABASE_PASSWORD) {
+if (!config.database.uri || !config.database.password) {
   logger.error('DB env varivales not present.');
 }
-const DB = process.env.DATABASE.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD,
-);
+const DB = config.database.uri.replace('<PASSWORD>', config.database.password);
 
 const connectToDB = async function () {
   try {

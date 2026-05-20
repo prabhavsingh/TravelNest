@@ -1,9 +1,10 @@
 const cors = require('cors');
+const config = require('./config');
 
 const corsConfig = {
   origin: (origin, callback) => {
-    const allowedOrigins = process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',')
+    const allowedOrigins = config.allowedOrigins
+      ? config.allowedOrigins.split(',')
       : [];
 
     if (!origin || allowedOrigins.includes(origin)) {

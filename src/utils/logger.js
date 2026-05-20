@@ -1,4 +1,5 @@
 const winston = require('winston');
+const config = require('../config/config');
 
 const logger = winston.createLogger({
   level: 'info',
@@ -7,7 +8,7 @@ const logger = winston.createLogger({
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize(),
     winston.format.printf(({ timestamp, level, message, stack, service }) => {
-      const mainMessage = `[${timestamp}] [${service}] [${process.env.NODE_ENV}] ${level}: ${message}`;
+      const mainMessage = `[${timestamp}] [${service}] [${config.node_env}] ${level}: ${message}`;
       // If there's an error stack trace, print it on a new line below
       return stack ? `${mainMessage}\n💥 STACK TRACE:\n${stack}` : mainMessage;
     }),
