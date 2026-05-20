@@ -1,8 +1,10 @@
-const cors = require('cors');
-const config = require('./config');
+import config from './config.js';
 
 const corsConfig = {
-  origin: (origin, callback) => {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allowed?: boolean) => void,
+  ) => {
     const allowedOrigins = config.allowedOrigins
       ? config.allowedOrigins.split(',')
       : [];
@@ -21,4 +23,4 @@ const corsConfig = {
   optionsSuccessStatus: 200,
 };
 
-module.exports = corsConfig;
+export default corsConfig;

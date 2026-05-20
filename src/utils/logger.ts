@@ -1,6 +1,6 @@
-const winston = require('winston');
-const LokiTransport = require('winston-loki');
-const config = require('../config/config');
+import winston from 'winston';
+import LokiTransport from 'winston-loki';
+import config from '../config/config.js';
 
 const logger = winston.createLogger({
   level: 'info',
@@ -23,4 +23,4 @@ const logger = winston.createLogger({
   ],
 });
 
-module.exports = logger;
+export default logger;

@@ -1,26 +1,26 @@
-const path = require('path');
-const express = require('express');
-const morgon = require('morgan');
-const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
-const hpp = require('hpp');
-const cookieParser = require('cookie-parser');
-const compression = require('compression');
-const cors = require('cors');
+import path from 'path';
+import express from 'express';
+import morgon from 'morgan';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import cors from 'cors';
 
-const config = require('./config/config');
-const tourRouter = require('./routes/tourRoutes');
-const userRouter = require('./routes/userRoutes');
-const reviewRouter = require('./routes/reviewRoutes');
-const viewRouter = require('./routes/viewRoutes');
-const bookingController = require('./controllers/bookingController');
-const bookingRouter = require('./routes/bookingRoutes');
-const AppError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController');
-const corsConfig = require('./config/cors.config');
-const helmetConfig = require('./config/security.config');
-const { initMetric, register } = require('./utils/metrics');
+import config from './config/config';
+import tourRouter from './routes/tourRoutes';
+import userRouter from './routes/userRoutes';
+import reviewRouter from './routes/reviewRoutes';
+import viewRouter from './routes/viewRoutes';
+import bookingController from './controllers/bookingController';
+import bookingRouter from './routes/bookingRoutes';
+import AppError from './utils/appError';
+import globalErrorHandler from './controllers/errorController';
+import corsConfig from './config/cors.config';
+import helmetConfig from './config/security.config';
+import { initMetric, register } from './utils/metrics';
 require('./utils/workers/workers');
 
 const app = express();
@@ -110,7 +110,7 @@ app.use('/health', (req, res) => {
 
 app.use('/', viewRouter);
 // app.use('/api/v1/tours', tourRouter);
-app.use('/api/v1/users', userRouter);
+// app.use('/api/v1/users', userRouter);
 // app.use('/api/v1/reviews', reviewRouter);
 // app.use('/api/v1/bookings', bookingRouter);
 

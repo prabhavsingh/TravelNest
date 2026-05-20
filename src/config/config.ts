@@ -1,4 +1,4 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 dotenv.config({ path: './config.env' });
 
 const config = {
@@ -44,4 +44,4 @@ const config = {
   allowedOrigins: process.env.ALLOWED_ORIGINS,
 };
 
-module.exports = config;
+export default config;

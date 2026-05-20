@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "tsx watch src/server.ts",
     "worker": "nodemon src/utils/workers.js",
     "start:prod": "SET NODE_ENV=production & nodemon server.js ",
     "watch": "parcel watch ./public/js/index.js --dist-dir ./public/dist --no-source-maps",

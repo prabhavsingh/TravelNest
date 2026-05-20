@@ -1,25 +1,26 @@
 import { setServers } from 'dns';
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
 
 setServers(['1.1.1.1', '8.8.8.8']);
-config({ path: './config.env' });
+dotenv.config({ path: './config.env' });
 
-process.on('uncaughtException', (err) => {
-  console.log('UNHANDLED EXCEPTION! 💥 Shutting down...');
-  console.log(err.name, err.message);
+process.on('uncaughtException', (err: Error) => {
+  logger.error('UNHANDLED EXCEPTION! 💥 Shutting down...');
+  logger.error(err.name, err.message);
   process.exit(1);
 });
 
 let server: Server;
 
 import app from './app.js';
-import { disconnectFromDB, connectToMongoDB } from './config/dbConfig.js';
 import { createServer, Server } from 'http';
+import { connectToDB, disconnectFromDB } from './config/db.config.js';
 import { connectRedis } from './config/redis.config.js';
-import connectToDB from './config/db.config.js';
+import config from './config/config.js';
+import logger from './utils/logger.js';
 
 const shutdown = (signal: string) => {
-  console.log(`Received ${signal}. Starting graceful shutdown...`);
+  logger.info(`Received ${signal}. Starting graceful shutdown...`);
 
   if (!server) {
     process.exit(0);
@@ -27,22 +28,22 @@ const shutdown = (signal: string) => {
 
   server.close(async (err) => {
     if (err) {
-      console.error('Error during server close', err);
+      logger.error('Error during server close', err);
       process.exit(1);
     }
     try {
       await disconnectFromDB();
-      console.log('Database connection closed.');
-      console.log('Shutdown complete');
+      logger.info('Database connection closed.');
+      logger.info('Shutdown complete');
       process.exit(0);
     } catch (error) {
-      console.error('Error during DB disconnect:', error);
+      logger.error('Error during DB disconnect:', error);
       process.exit(1);
     }
   });
 
   setTimeout(() => {
-    console.error(
+    logger.error(
       'Could not close connections in time, forcefully shutting down',
     );
     process.exit(1);
@@ -56,7 +57,7 @@ async function startServer() {
 
   server = createServer(app);
   server.listen(port, () => {
-    console.log(`App is running on port ${port}...`);
+    logger.info(`App is running on port ${port}...`);
   });
 }
 
@@ -64,13 +65,13 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
 startServer().catch((error) => {
-  console.log('Error while starting the server', error);
+  logger.error('Error while starting the server', error);
   process.exit(1);
 });
 
-process.on('unhandledRejection', (err) => {
-  console.log('UNHANDLED REJECTION! 💥 Shutting down...');
-  console.log(err.name, err.message);
+process.on('unhandledRejection', (err: Error) => {
+  logger.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  logger.error(err.name, err.message);
   server.close(() => {
     process.exit(1);
   });
