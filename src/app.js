@@ -2,7 +2,6 @@ const path = require('path');
 const express = require('express');
 const morgon = require('morgan');
 const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
@@ -10,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const cors = require('cors');
 
+const config = require('./config/config');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
@@ -19,17 +19,17 @@ const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const corsConfig = require('./config/cors.config');
-const config = require('./config/config');
+const helmetConfig = require('./config/security.config');
+const { initMetric, register } = require('./utils/metrics');
 require('./utils/workers/workers');
 
 const app = express();
 
-if (config.node_env && config.node_env.trim() === 'production') {
-  app.enable('trust proxy');
-}
-
+app.enable('trust proxy');
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '../views'));
+
+initMetric(app);
 
 // 1. MIDDLEWARES
 //implement cors
@@ -38,28 +38,7 @@ app.use(cors(corsConfig));
 app.use(express.static(path.join(__dirname, '../public')));
 
 //Set security HTTP headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          'https://js.stripe.com',
-          'https://cdn.maptiler.com',
-        ],
-        frameSrc: ["'self'", 'https://js.stripe.com'], // Allow Stripe Checkout
-        workerSrc: ["'self'", 'blob:'],
-        connectSrc: [
-          "'self'",
-          'https://api.maptiler.com', //  Allow MapTiler API requests
-        ],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'],
-      },
-    },
-  }),
-);
-
+app.use(helmetConfig);
 if (config.node_env.trim() === 'development') {
   app.use(morgon('dev'));
 }
@@ -134,6 +113,12 @@ app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
+
+//metrics endpoint for prometheus
+app.get('/metrics', async (req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 app.all('*', (req, res, next) => {
   // res.status(404).json({

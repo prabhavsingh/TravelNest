@@ -1,4 +1,5 @@
 const winston = require('winston');
+const LokiTransport = require('winston-loki');
 const config = require('../config/config');
 
 const logger = winston.createLogger({
@@ -14,7 +15,12 @@ const logger = winston.createLogger({
     }),
   ),
   defaultMeta: { service: 'NodeTourGuide' },
-  transports: [new winston.transports.Console()],
+  transports: [
+    new winston.transports.Console(),
+    new LokiTransport({
+      host: 'http://127.0.0.1:3100',
+    }),
+  ],
 });
 
 module.exports = logger;
