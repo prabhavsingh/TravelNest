@@ -19,11 +19,12 @@ const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const corsConfig = require('./config/cors.config');
-require('./utils/workers');
+const config = require('./config/config');
+require('./utils/workers/workers');
 
 const app = express();
 
-if (process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'production') {
+if (config.node_env && config.node_env.trim() === 'production') {
   app.enable('trust proxy');
 }
 
@@ -53,12 +54,13 @@ app.use(
           "'self'",
           'https://api.maptiler.com', //  Allow MapTiler API requests
         ],
+        imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'],
       },
     },
   }),
 );
 
-if (process.env.NODE_ENV.trim() === 'development') {
+if (config.node_env.trim() === 'development') {
   app.use(morgon('dev'));
 }
 

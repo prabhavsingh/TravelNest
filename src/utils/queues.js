@@ -25,8 +25,17 @@ const emailQueue = new Queue('email-queue', {
   defaultJobOptions,
 });
 
+// const imageUploadQueue = new Queue('image-queue', {
+//   connection: redisConnection,
+//   defaultJobOptions,
+// });
+
 const addEmailToQueue = async function (newUser, url) {
   await emailQueue.add('email-job', { newUser, url });
 };
+
+// const addImageToQueue = async function (file) {
+//   await imageUploadQueue.add('image-job', { file });
+// };
 
 module.exports = { addEmailToQueue };

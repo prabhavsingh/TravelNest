@@ -2,54 +2,61 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const config = require('../config/config');
 
-const userSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please tell us your name'],
-  },
-  email: {
-    type: String,
-    required: [true, 'Please provide your email'],
-    unique: true,
-    lowerCase: true,
-    validate: [validator.isEmail, 'Please provide a valid email'],
-  },
-  photo: {
-    type: String,
-    default: 'default.jpg',
-  },
-  role: {
-    type: String,
-    enum: ['user', 'guide', 'lead-guide', 'admin'],
-    default: 'user',
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide your password'],
-    minlength: 8,
-    select: false,
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, 'Please confirm your password'],
-    validate: {
-      // this only works on SAVE
-      validator: function (el) {
-        return el === this.password;
+const userSchema = mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please tell us your name'],
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide your email'],
+      unique: true,
+      lowerCase: true,
+      validate: [validator.isEmail, 'Please provide a valid email'],
+    },
+    photo: {
+      type: String,
+      default: 'default.jpg',
+    },
+    role: {
+      type: String,
+      enum: ['user', 'guide', 'lead-guide', 'admin'],
+      default: 'user',
+    },
+    password: {
+      type: String,
+      required: [true, 'Please provide your password'],
+      minlength: 8,
+      select: false,
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm your password'],
+      validate: {
+        // this only works on SAVE
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: 'Password are not the same',
       },
-      message: 'Password are not the same',
+    },
+    passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
+    actuve: {
+      type: Boolean,
+      default: true,
+      select: false,
     },
   },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  actuve: {
-    type: Boolean,
-    default: true,
-    select: false,
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
-});
+);
 
 userSchema.pre('save', async function (next) {
   //only run if password is actually modified
@@ -107,6 +114,14 @@ userSchema.methods.createPasswordResetToken = function () {
 
   return resetToken;
 };
+
+userSchema.virtual('avatar').get(function () {
+  if (this.photo === 'default.jpg') {
+    return '/img/users/default.jpg';
+  }
+
+  return `https://res.cloudinary.com/${config.cloudinary.cloudName}/image/upload/w_150,h_150,c_fill,g_face,q_auto,f_auto/${this.photo}`;
+});
 
 const User = mongoose.model('User', userSchema);
 

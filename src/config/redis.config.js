@@ -1,9 +1,10 @@
 const Redis = require('ioredis');
 const logger = require('../utils/logger');
+const config = require('./config');
 
 const redisConnection = {
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
+  host: config.redis.host || '127.0.0.1',
+  port: config.redis.port || 6379,
 };
 
 const redis = new Redis({
