@@ -2,7 +2,6 @@ const path = require('path');
 const express = require('express');
 const morgon = require('morgan');
 const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
@@ -20,74 +19,17 @@ const bookingRouter = require('./routes/bookingRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const corsConfig = require('./config/cors.config');
-const promClient = require('prom-client');
-const responseTime = require('response-time');
-const { transports, createLogger, format } = require('winston');
-const LokiTransport = require('winston-loki');
+const helmetConfig = require('./config/security.config');
+const { initMetric, register } = require('./utils/metrics');
 require('./utils/workers/workers');
 
-const options = {
-  level: 'info',
-  format: format.json(),
-  transports: [
-    new transports.Console({
-      format: format.combine(format.colorize(), format.simple()),
-    }),
-    new LokiTransport({
-      host: 'http://127.0.0.1:3100',
-    }),
-  ],
-};
-const logger = createLogger(options);
 const app = express();
 
-const register = new promClient.Registry();
-promClient.collectDefaultMetrics({ register });
-
-const reqResTime = new promClient.Histogram({
-  name: 'http_express_req_res_time',
-  help: 'THis tells how much time is taken by req and res',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [1, 5, 10, 50, 100, 200, 500, 800, 1000, 2000, 5000],
-});
-
-const httpRequestsCounter = new promClient.Counter({
-  name: 'http_total_request_counter',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status'],
-});
-
-register.registerMetric(reqResTime);
-register.registerMetric(httpRequestsCounter);
-
-app.use(
-  responseTime((req, res, time) => {
-    reqResTime
-      .labels({
-        method: req.method,
-        route: req.url,
-        status_code: req.statusCode,
-      })
-      .observe(time);
-  }),
-);
-
-app.use((req, res, next) => {
-  res.on('finish', () => {
-    httpRequestsCounter.inc({
-      method: req.method,
-      route: req.path,
-      status: res.statusCode,
-    });
-  });
-
-  next();
-});
-
 app.enable('trust proxy');
-
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, '../views'));
+
+initMetric(app);
 
 // 1. MIDDLEWARES
 //implement cors
@@ -96,28 +38,7 @@ app.use(cors(corsConfig));
 app.use(express.static(path.join(__dirname, '../public')));
 
 //Set security HTTP headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          'https://js.stripe.com',
-          'https://cdn.maptiler.com',
-        ],
-        frameSrc: ["'self'", 'https://js.stripe.com'], // Allow Stripe Checkout
-        workerSrc: ["'self'", 'blob:'],
-        connectSrc: [
-          "'self'",
-          'https://api.maptiler.com', //  Allow MapTiler API requests
-        ],
-        imgSrc: ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'],
-      },
-    },
-  }),
-);
-
+app.use(helmetConfig);
 if (config.node_env.trim() === 'development') {
   app.use(morgon('dev'));
 }
