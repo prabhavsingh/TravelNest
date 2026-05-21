@@ -3,31 +3,34 @@ import express from 'express';
 import morgon from 'morgan';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
+// @ts-ignore
 import xss from 'xss-clean';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
+import type { NextFunction, Request, Response } from 'express';
+// import { webhookCheckout } from './controllers/bookingController.js';
 
-import config from './config/config';
-import tourRouter from './routes/tourRoutes';
-import userRouter from './routes/userRoutes';
-import reviewRouter from './routes/reviewRoutes';
-import viewRouter from './routes/viewRoutes';
-import bookingController from './controllers/bookingController';
-import bookingRouter from './routes/bookingRoutes';
-import AppError from './utils/appError';
-import globalErrorHandler from './controllers/errorController';
-import corsConfig from './config/cors.config';
-import helmetConfig from './config/security.config';
-import { initMetric, register } from './utils/metrics';
-require('./utils/workers/workers');
+import config from './config/config.js';
+// import tourRouter from './routes/tourRoutes.js';
+// import userRouter from './routes/userRoutes.js';
+// import reviewRouter from './routes/reviewRoutes';
+// import viewRouter from './routes/viewRoutes.js';
+// import bookingController from './controllers/bookingController';
+// import bookingRouter from './routes/bookingRoutes';
+import AppError from './utils/appError.js';
+import globalErrorHandler from './controllers/errorController.js';
+import corsConfig from './config/cors.config.js';
+import helmetConfig from './config/security.config.js';
+import { initMetric, register } from './utils/metrics.js';
+import './utils/workers/workers.js';
 
 const app = express();
 
 app.enable('trust proxy');
 app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, '../views'));
+app.set('views', path.join(process.cwd(), './views'));
 
 initMetric(app);
 
@@ -35,28 +38,28 @@ initMetric(app);
 //implement cors
 app.use(cors(corsConfig));
 //serving static files
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(process.cwd(), './public')));
 
 //Set security HTTP headers
 app.use(helmetConfig);
-if (config.node_env.trim() === 'development') {
+if (config.node_env!.trim() === 'development') {
   app.use(morgon('dev'));
 }
 
 //limit request from same API
 const limiter = rateLimit({
   max: 100,
-  windowMS: 60 * 60 * 1000,
+  // windowMS: 60 * 60 * 1000,
   validate: { trustProxy: false },
   message: 'Too many request from this IP, please try again in hour!',
 });
 app.use('/api', limiter);
 
-app.post(
-  '/webhook-checkout',
-  express.raw({ type: 'application/json' }),
-  webhookCheckout,
-);
+// app.post(
+//   '/webhook-checkout',
+//   express.raw({ type: 'application/json' }),
+//   webhookCheckout,
+// );
 
 //adds body data on req - data from the body is added to req object
 app.use(express.json({ limit: '10kb' }));
@@ -108,7 +111,7 @@ app.use('/health', (req, res) => {
   });
 });
 
-app.use('/', viewRouter);
+// app.use('/', viewRouter);
 // app.use('/api/v1/tours', tourRouter);
 // app.use('/api/v1/users', userRouter);
 // app.use('/api/v1/reviews', reviewRouter);

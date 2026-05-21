@@ -1,5 +1,5 @@
+import config from '../config/config.js';
 import AppError from '../utils/appError.js';
-const config = require('../config/config');
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;

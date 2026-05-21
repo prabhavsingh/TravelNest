@@ -1,7 +1,7 @@
-const promClient = require('prom-client');
-const responseTime = require('response-time');
+import promClient from 'prom-client';
+import responseTime from 'response-time';
 
-const register = new promClient.Registry();
+export const register = new promClient.Registry();
 promClient.collectDefaultMetrics({ register });
 
 const reqResTime = new promClient.Histogram({
@@ -20,7 +20,7 @@ const httpRequestsCounter = new promClient.Counter({
 register.registerMetric(reqResTime);
 register.registerMetric(httpRequestsCounter);
 
-const initMetric = (app) => {
+export const initMetric = (app) => {
   app.use(
     responseTime((req, res, time) => {
       reqResTime
@@ -44,5 +44,3 @@ const initMetric = (app) => {
     next();
   });
 };
-
-module.exports = { register, initMetric };

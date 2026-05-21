@@ -1,7 +1,7 @@
-const { Worker } = require('bullmq');
-const { redisConnection } = require('../../config/redis.config');
-const Email = require('../email');
-const logger = require('../logger');
+import { Worker } from 'bullmq';
+import Email from '../email.js';
+import logger from '../logger.js';
+import { redisConnection } from '../../config/redis.config.js';
 
 const emailWorker = new Worker(
   'email-queue',

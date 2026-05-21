@@ -1,66 +1,8 @@
-<<<<<<<< HEAD:src/controllers/handlerFactory.ts
-import AppError from '../utils/appError.js';
-import catchAsync from '../utils/catchAsync.js';
-import type { NextFunction, Request, Response } from 'express';
-
-export function deleteOne(Model) {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-========
 const { redis } = require('../config/redis.config');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-exports.deleteOne = (Model) =>
-  catchAsync(async (req, res, next) => {
->>>>>>>> development:src/controllers/handlerFactory.js
-    const doc = await Model.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return next(new AppError('No document found with that ID', 404));
-    }
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  });
-}
-
-export function UpdateOne(Model) {
-  return catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!doc) {
-      return next(new AppError('No document found with that ID', 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        data: doc,
-      },
-    });
-  });
-}
-
-export function CreateOne(Model) {
-  return catchAsync(async (req, res, next) => {
-    const doc = await Model.create(req.body);
-
-    res.status(201).json({
-      status: 'success',
-      data: {
-        data: doc,
-      },
-    });
-  });
-}
-
-<<<<<<<< HEAD:src/controllers/handlerFactory.ts
-export function getOne(Model, popOptions) {
-  return catchAsync(async (req, res, next) => {
-========
 exports.getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     const cacheKey = `${Model.modelName}:${req.params.id}`;
@@ -74,7 +16,6 @@ exports.getOne = (Model, popOptions) =>
         },
       });
     }
->>>>>>>> development:src/controllers/handlerFactory.js
     let query = Model.findById(req.params.id);
     if (popOptions) query = query.populate(popOptions);
 
@@ -90,10 +31,9 @@ exports.getOne = (Model, popOptions) =>
       },
     });
   });
-}
 
-export function getAll(Model) {
-  return catchAsync(async (req, res, next) => {
+exports.getAll = (Model) =>
+  catchAsync(async (req, res, next) => {
     //to allow for nested GET reviews on tour
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
@@ -139,4 +79,3 @@ export function getAll(Model) {
       },
     });
   });
-}

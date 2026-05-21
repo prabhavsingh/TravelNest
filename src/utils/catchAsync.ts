@@ -1,8 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 
 const catchAsync = (fn: Function) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
+  return function (req: Request, res: Response, next: NextFunction) {
+    try {
+      fn(req, res, next);
+    } catch (error) {
+      next(error);
+    }
   };
 };
 

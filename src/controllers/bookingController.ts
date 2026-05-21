@@ -1,10 +1,13 @@
-const config = require('../config/config');
-const stripe = require('stripe')(config.stripe.stripePrivateKey);
-const Tour = require('../model/tourModel');
-const Booking = require('../model/bookingModel');
-const catchAsync = require('../utils/catchAsync');
-const factory = require('./handlerFactory');
-const User = require('../model/userModel');
+import Stripe from 'stripe';
+import config from '../config/config.js';
+
+const stripe = new Stripe(config.stripe.stripePrivateKey);
+
+import Tour from '../model/tourModel.js';
+import Booking from '../model/bookingModel.js';
+import catchAsync from '../utils/catchAsync.js';
+import factory from './handlerFactory.js';
+import User from '../model/userModel.js';
 
 export const getCheckoutSession = catchAsync(async (req, res, next) => {
   //get the currently booked tour
