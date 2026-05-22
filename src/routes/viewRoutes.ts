@@ -1,6 +1,6 @@
-const express = require('express');
-const viewsController = require('../controllers/viewController');
-const authController = require('../controllers/authController');
+import express from 'express';
+import * as viewsController from '../controllers/viewController.js';
+import * as authController from '../controllers/authController.js';
 
 const router = express.Router();
 

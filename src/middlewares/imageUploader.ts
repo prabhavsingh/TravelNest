@@ -1,9 +1,7 @@
-const User = require('../model/userModel');
-const AppError = require('../utils/appError');
-const { uploadImageToCloudinary } = require('../utils/cloudinary');
-const logger = require('../utils/logger');
+import { uploadImageToCloudinary } from '../utils/cloudinary.js';
+import logger from '../utils/logger.js';
 
-const uploadImage = async (file, userId) => {
+export const uploadImage = async (file, userId) => {
   if (!file) {
     logger.error('no file found. please add a file and try again');
     throw new Error('no file found');
@@ -28,5 +26,3 @@ const uploadImage = async (file, userId) => {
 
   return result;
 };
-
-module.exports = { uploadImage };

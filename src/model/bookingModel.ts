@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const { invalidateCollectionCache } = require('../utils/cache');
+import mongoose from 'mongoose';
+import { invalidateCollectionCache } from '../utils/cache.js';
 
 const bookingSchema = new mongoose.Schema({
   tour: {
@@ -40,4 +40,4 @@ bookingSchema.post('save', async function () {
 
 const Booking = mongoose.model('Booking', bookingSchema);
 
-module.exports = Booking;
+export default Booking;

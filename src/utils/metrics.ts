@@ -33,7 +33,7 @@ export const initMetric = (app) => {
     }),
   );
 
-  app.use((req, res, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     res.on('finish', () => {
       httpRequestsCounter.inc({
         method: req.method,

@@ -1,7 +1,18 @@
-const config = require('../config/config');
-const logger = require('./logger');
+import config from '../config/config.js';
+import logger from './logger.js';
 
-const cloudinary = require('cloudinary').v2;
+import { v2 as cloudinary } from 'cloudinary';
+
+if (
+  !config.cloudinary.cloudName ||
+  !config.cloudinary.apiKey ||
+  !config.cloudinary.apiSecret
+) {
+  logger.error('Cloudinary configuration loaded successfully');
+  throw new Error(
+    'Cloudinary configuration is missing. Please check your environment variables.',
+  );
+}
 
 cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
@@ -9,7 +20,7 @@ cloudinary.config({
   api_secret: config.cloudinary.apiSecret,
 });
 
-const uploadImageToCloudinary = async function (file, userId) {
+export const uploadImageToCloudinary = async function (file, userId) {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -33,7 +44,7 @@ const uploadImageToCloudinary = async function (file, userId) {
   });
 };
 
-const deleteImageFromCloudinary = async function (publicId) {
+export const deleteImageFromCloudinary = async function (publicId) {
   try {
     const result = await cloudinary.uploader.destroy(publicId);
     logger.info('media deleted successfully from cloud storage', publicId);
@@ -43,5 +54,3 @@ const deleteImageFromCloudinary = async function (publicId) {
     throw error;
   }
 };
-
-module.exports = { uploadImageToCloudinary, deleteImageFromCloudinary };

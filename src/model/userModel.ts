@@ -1,8 +1,8 @@
-const crypto = require('crypto');
-const mongoose = require('mongoose');
-const validator = require('validator');
-const bcrypt = require('bcryptjs');
-const config = require('../config/config');
+import crypto from 'crypto';
+import mongoose from 'mongoose';
+import validator from 'validator';
+import bcrypt from 'bcryptjs';
+import config from '../config/config.js';
 
 const userSchema = mongoose.Schema(
   {
@@ -125,4 +125,4 @@ userSchema.virtual('avatar').get(function () {
 
 const User = mongoose.model('User', userSchema);
 
-module.exports = User;
+export default User;

@@ -1,4 +1,4 @@
-const multer = require('multer');
+import multer from 'multer';
 
 const multerStorage = multer.memoryStorage();
 
@@ -26,7 +26,7 @@ const upload = multer({
 //   },
 // });
 
-// exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+// exports.resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 //   if (!req.file) return next();
 
 //   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
@@ -40,4 +40,4 @@ const upload = multer({
 //   next();
 // });
 
-exports.uploadUserPhoto = upload.single('photo');
+export const uploadUserPhoto = upload.single('photo');

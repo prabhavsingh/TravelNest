@@ -1,7 +1,7 @@
-const { Queue } = require('bullmq');
-const { redisConnection } = require('../config/redis.config');
+import { Queue, type DefaultJobOptions } from 'bullmq';
+import { redisConnection } from '../config/redis.config.js';
 
-const defaultJobOptions = {
+const defaultJobOptions: DefaultJobOptions = {
   // --- RETRY STRATEGY ---
   attempts: 3, // Total times to attempt the job if it fails
   backoff: {
@@ -30,12 +30,10 @@ const emailQueue = new Queue('email-queue', {
 //   defaultJobOptions,
 // });
 
-const addEmailToQueue = async function (newUser, url) {
+export const addEmailToQueue = async function (newUser, url) {
   await emailQueue.add('email-job', { newUser, url });
 };
 
 // const addImageToQueue = async function (file) {
 //   await imageUploadQueue.add('image-job', { file });
 // };
-
-module.exports = { addEmailToQueue };

@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 
-const authController = require('../controllers/authController');
-const tourController = require('../controllers/tourController');
-const reviewRouter = require('./reviewRoutes');
+import * as authController from '../controllers/authController.js';
+import * as tourController from '../controllers/tourController.js';
+import reviewRouter from './reviewRoutes.js';
 
 const router = express.Router();
 

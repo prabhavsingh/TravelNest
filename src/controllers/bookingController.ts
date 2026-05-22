@@ -1,57 +1,60 @@
 import Stripe from 'stripe';
 import config from '../config/config.js';
 
-const stripe = new Stripe(config.stripe.stripePrivateKey);
+const stripe = new Stripe(config.stripe.stripePrivateKey!);
 
 import Tour from '../model/tourModel.js';
 import Booking from '../model/bookingModel.js';
 import catchAsync from '../utils/catchAsync.js';
-import factory from './handlerFactory.js';
+import * as factory from './handlerFactory.js';
 import User from '../model/userModel.js';
+import type { NextFunction, Request, Response } from 'express';
 
-export const getCheckoutSession = catchAsync(async (req, res, next) => {
-  //get the currently booked tour
-  const tour = await Tour.findById(req.params.tourId);
+export const getCheckoutSession = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    //get the currently booked tour
+    const tour = await Tour.findById(req.params.tourId);
 
-  //create checkout session
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    mode: 'payment',
-    // success_url: `${req.protocol}://${req.get('host')}/my-tours/?tour=${
-    //   req.params.tourId
-    // }&user=${req.user.id}&price=${tour.price}`,
-    success_url: `${req.protocol}://${req.get('host')}/my-tours`,
-    cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
-    customer_email: req.user.email,
-    client_reference_id: req.params.tourId,
-    line_items: [
-      {
-        price_data: {
-          currency: 'aud',
-          unit_amount: tour.price * 100,
-          product_data: {
-            name: `${tour.name} Tour`,
-            description: tour.summary,
-            images: [
-              `${req.protocol}://${req.get('host')}/img/tours/${
-                tour.imageCover
-              }`,
-            ],
+    //create checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      // success_url: `${req.protocol}://${req.get('host')}/my-tours/?tour=${
+      //   req.params.tourId
+      // }&user=${req.user.id}&price=${tour.price}`,
+      success_url: `${req.protocol}://${req.get('host')}/my-tours`,
+      cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
+      customer_email: req.user.email,
+      client_reference_id: req.params.tourId,
+      line_items: [
+        {
+          price_data: {
+            currency: 'aud',
+            unit_amount: tour.price * 100,
+            product_data: {
+              name: `${tour.name} Tour`,
+              description: tour.summary,
+              images: [
+                `${req.protocol}://${req.get('host')}/img/tours/${
+                  tour.imageCover
+                }`,
+              ],
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-  });
+      ],
+    });
 
-  //create session as response
-  res.status(200).json({
-    status: 'success',
-    session,
-  });
-});
+    //create session as response
+    res.status(200).json({
+      status: 'success',
+      session,
+    });
+  },
+);
 
-// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+// exports.createBookingCheckout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 //   const { tour, user, price } = req.query;
 
 //   if (!tour && !user && !price) return next();

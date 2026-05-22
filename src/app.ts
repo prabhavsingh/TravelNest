@@ -10,15 +10,14 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import type { NextFunction, Request, Response } from 'express';
-// import { webhookCheckout } from './controllers/bookingController.js';
 
 import config from './config/config.js';
-// import tourRouter from './routes/tourRoutes.js';
-// import userRouter from './routes/userRoutes.js';
-// import reviewRouter from './routes/reviewRoutes';
-// import viewRouter from './routes/viewRoutes.js';
-// import bookingController from './controllers/bookingController';
-// import bookingRouter from './routes/bookingRoutes';
+import tourRouter from './routes/tourRoutes.js';
+import userRouter from './routes/userRoutes.js';
+import reviewRouter from './routes/reviewRoutes.js';
+import viewRouter from './routes/viewRoutes.js';
+import * as bookingController from './controllers/bookingController.js';
+import bookingRouter from './routes/bookingRoutes.js';
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/errorController.js';
 import corsConfig from './config/cors.config.js';
@@ -55,11 +54,11 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// app.post(
-//   '/webhook-checkout',
-//   express.raw({ type: 'application/json' }),
-//   webhookCheckout,
-// );
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout,
+);
 
 //adds body data on req - data from the body is added to req object
 app.use(express.json({ limit: '10kb' }));
@@ -88,7 +87,7 @@ app.use(
 
 app.use(compression());
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   req.requestTime = new Date().toISOString();
   // console.log(req.cookies);
   next();
@@ -111,11 +110,11 @@ app.use('/health', (req, res) => {
   });
 });
 
-// app.use('/', viewRouter);
-// app.use('/api/v1/tours', tourRouter);
-// app.use('/api/v1/users', userRouter);
-// app.use('/api/v1/reviews', reviewRouter);
-// app.use('/api/v1/bookings', bookingRouter);
+app.use('/', viewRouter);
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 //metrics endpoint for prometheus
 app.get('/metrics', async (req, res) => {

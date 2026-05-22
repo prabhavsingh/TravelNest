@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 
-const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
-const { uploadUserPhoto } = require('../middlewares/multer');
+import * as userController from '../controllers/userController.js';
+import * as authController from '../controllers/authController.js';
+import { uploadUserPhoto } from '../middlewares/multer.js';
 
 const router = express.Router();
 

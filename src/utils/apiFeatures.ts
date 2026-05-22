@@ -1,8 +1,10 @@
-class APIFeatures {
-  constructor(query, queryString) {
-    this.query = query;
-    this.queryString = queryString;
-  }
+import type { Query } from 'mongoose';
+
+class APIFeatures<ResultType, DocType> {
+  constructor(
+    public query: Query<ResultType, DocType>,
+    public queryString: Record<string, any>,
+  ) {}
 
   filter() {
     //BUILD QUERY
@@ -54,4 +56,4 @@ class APIFeatures {
   }
 }
 
-module.exports = APIFeatures;
+export default APIFeatures;

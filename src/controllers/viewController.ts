@@ -1,10 +1,11 @@
-const Tour = require('../model/tourModel');
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
-const User = require('../model/userModel');
-const Booking = require('../model/bookingModel');
+import Tour from '../model/tourModel.js';
+import catchAsync from '../utils/catchAsync.js';
+import AppError from '../utils/appError.js';
+import User from '../model/userModel.js';
+import Booking from '../model/bookingModel.js';
+import type { NextFunction, Request, Response } from 'express';
 
-exports.getOverview = catchAsync(async (req, res) => {
+export const getOverview = catchAsync(async (req, res) => {
   //1. Get tour data from collection
   const tours = await Tour.find();
 
@@ -14,52 +15,55 @@ exports.getOverview = catchAsync(async (req, res) => {
   });
 });
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  const [tour] = await Tour.find({ slug: req.params.slug }).populate({
-    path: 'reviews',
-    fields: 'review rating user',
-  });
+export const getTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const [tour] = await Tour.find({ slug: req.params.slug }).populate({
+      path: 'reviews',
+      fields: 'review rating user',
+    });
 
-  if (!tour) return next(new AppError('There is no tour with that name', 404));
+    if (!tour)
+      return next(new AppError('There is no tour with that name', 404));
 
-  res.status(200).render('tour', {
-    title: `${tour.name} Tour`,
-    tour,
-  });
-});
+    res.status(200).render('tour', {
+      title: `${tour.name} Tour`,
+      tour,
+    });
+  },
+);
 
-exports.getLoginForm = (req, res) => {
+export const getLoginForm = (req, res) => {
   res.status(200).render('login', {
     title: 'Log into your account',
   });
 };
 
-exports.getSignupForm = (req, res) => {
+export const getSignupForm = (req, res) => {
   res.status(200).render('signup', {
     title: 'Sign up your account',
   });
 };
 
-exports.getForgotPasswordForm = (req, res) => {
+export const getForgotPasswordForm = (req, res) => {
   res.status(200).render('forgotPassword', {
     title: 'Reset Your Password',
   });
 };
 
-exports.getResetPasswordForm = (req, res) => {
+export const getResetPasswordForm = (req, res) => {
   res.status(200).render('resetPassword', {
     title: 'Reset Your Password',
     resetToken: req.params.resetToken,
   });
 };
 
-exports.getAccount = (req, res) => {
+export const getAccount = (req, res) => {
   res.status(200).render('account', {
     title: 'Your Account',
   });
 };
 
-exports.getMyTours = catchAsync(async (req, res) => {
+export const getMyTours = catchAsync(async (req, res) => {
   const bookings = await Booking.find({ user: req.user.id });
   const tours = await Promise.all(
     bookings.map(async (el) => await Tour.findById(el.tour.id)),
@@ -71,7 +75,7 @@ exports.getMyTours = catchAsync(async (req, res) => {
   });
 });
 
-exports.updateUserData = catchAsync(async (req, res) => {
+export const updateUserData = catchAsync(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     req.user.id,
     {

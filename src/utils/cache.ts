@@ -44,9 +44,9 @@
 //   await redis.del(JSON.stringify(hashKey));
 // };
 
-const { redis } = require('../config/redis.config');
+import { redis } from '../config/redis.config.js';
 
-exports.invalidateCollectionCache = async (modelName) => {
+export const invalidateCollectionCache = async (modelName) => {
   let cursor = '0';
   const pattern = `${modelName}`;
   try {
@@ -65,7 +65,7 @@ exports.invalidateCollectionCache = async (modelName) => {
   } catch (error) {
     console.error(
       `[Cache Invalidation Error] Failed to clear pattern ${pattern}:`,
-      err,
+      error,
     );
   }
 };
