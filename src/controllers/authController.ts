@@ -11,7 +11,7 @@ import type { NextFunction, Request, Response } from 'express';
 
 const signToken = (id) => {
   return jwt.sign({ id: id }, config.jwt.secret! as Secret, {
-    expiresIn: Number(config.jwt.expiresIn!),
+    expiresIn: config.jwt.expiresIn!,
   });
 };
 

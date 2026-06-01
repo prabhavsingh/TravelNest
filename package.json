@@ -10,12 +10,13 @@
     }
   },
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node dist/server.js",
     "dev": "tsx --watch src/server.ts",
+    "build": "tsc",
     "worker": "nodemon src/utils/workers.js",
     "start:prod": "SET NODE_ENV=production & nodemon server.js ",
-    "watch": "parcel watch ./public/js/index.js --dist-dir ./public/dist --no-source-maps",
-    "build": "parcel build ./public/js/index.js --dist-dir ./public/dist --no-source-maps"
+    "watch:frontend": "parcel watch ./public/js/index.js --dist-dir ./public/dist --no-source-maps",
+    "build:frontend": "parcel build ./public/js/index.js --dist-dir ./public/dist --no-source-maps"
   },
   "repository": {
     "type": "git",

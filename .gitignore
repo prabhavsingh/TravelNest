@@ -4,3 +4,4 @@ dev-data/
 .cache
 public/dist/
 .parcel-cache
+dist
