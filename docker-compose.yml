@@ -1,4 +1,13 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./config.env
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
