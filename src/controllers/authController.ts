@@ -15,7 +15,12 @@ const signToken = (id) => {
   });
 };
 
-const createSendToken = (user, statusCode, req, res) => {
+const createSendToken = (
+  user,
+  statusCode: Number,
+  req: Request,
+  res: Response,
+) => {
   const token = signToken(user._id);
   const cookieOptions = {
     expires: new Date(
@@ -42,17 +47,18 @@ const createSendToken = (user, statusCode, req, res) => {
 
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email } = req.body;
-    const existingUser = await User.findOne({ email });
+    const { email, name, password, passwordConfirm } = req.body;
+    const normalizedEmail = email.toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return next(new AppError('User with that email already exists', 400));
     }
 
     const newUser = await User.create({
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-      passwordConfirm: req.body.passwordConfirm,
+      name,
+      email: normalizedEmail,
+      password,
+      passwordConfirm,
     });
     const url = `${req.protocol}://${req.get('host')}/me`;
     // add email job to queue

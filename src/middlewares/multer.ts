@@ -1,8 +1,10 @@
 import multer from 'multer';
+import AppError from '../utils/appError.js';
+import type { Request } from 'express';
 
 const multerStorage = multer.memoryStorage();
 
-const multerFilter = (req, file, cb) => {
+const multerFilter = (req: Request, file, cb) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {

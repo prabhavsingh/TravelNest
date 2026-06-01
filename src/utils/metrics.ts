@@ -1,5 +1,6 @@
 import promClient from 'prom-client';
 import responseTime from 'response-time';
+import type { NextFunction, Request, Response } from 'express';
 
 export const register = new promClient.Registry();
 promClient.collectDefaultMetrics({ register });

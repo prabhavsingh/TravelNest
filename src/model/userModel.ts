@@ -4,7 +4,7 @@ import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import config from '../config/config.js';
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,

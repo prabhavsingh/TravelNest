@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import pug from 'pug';
 import { htmlToText } from 'html-to-text';
-import config from '../config/config';
+import config from '../config/config.js';
 
 class Email {
   constructor(user, url) {
